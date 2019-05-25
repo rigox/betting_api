@@ -2,14 +2,14 @@ const mongoose = require("mongoose");
 
 const userSchema =  mongoose.Schema({
       name:String,
-      contracts=[],
+      funds :  Number,
+      contracts:[],
       positions:[],
-      funds =  Number
-
-})
-
+      dateJoined :String  
+});
 
 
-const User =   mongoose.Model("Users",userSchema)
+
+const User =   mongoose.model("User",userSchema)
 
 module.exports  = User;
