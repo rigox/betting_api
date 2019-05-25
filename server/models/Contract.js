@@ -13,7 +13,7 @@ const contractSchema =  new Schema({
 
 });
 
-
+var a = 1
 const Contract =  moongose.model('Contract',contractSchema)
 
 module.exports  =  Contract;
