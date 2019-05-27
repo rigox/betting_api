@@ -11,9 +11,10 @@ router.get('/',(req,res)=>{
 });
 
 
-router.post('/login',(req,res)=>{
+router.post('/login',verifyUser,(req,res)=>{
 
-      User.findById('5ce9a34ca87de457fa68efd5',(err,user)=>{
+      const email =  req.query.email;
+      User.find({'email':email},(err,user)=>{
             
            jwt.sign({user:user},keys.secret_key,{expiresIn:'5h'},(err,token)=>{
                   res.json({
@@ -100,15 +101,22 @@ function  verifyToken(req,res,next){
 
 //function to verify the user exist using password and email
 function verifyUser(req,res,next){
+      console.log("inside middleware function")
+
         const  email  = req.query.email;
         const password =  req.query.password;
-        
-        User.find({'email':email,'password':password},(err,user)=>{
-              if(err){res.sendStatus(404,{message:err})}
-              else{
-                  next(user);
-              }
-        });
+        console.log(email)
+        console.log(password)
+
+      User.find({email:email,password:password},function(err,user){
+            if(err){
+                  return  res.sendStatus(404,{message:"Error"})
+            }else if(!user.length){
+                return   res.sendStatus(404,{message:"User  does not exit"});
+            }
+            next();
+      });
+      
 
 }
 
