@@ -85,40 +85,49 @@ router.delete('/delete_contract',verifyToken,(req,res)=>{
 
 
 
-router.post('/join_contract',(req,res)=>{
+router.post('/join_contract',checkFunds,(req,res)=>{
+      const email  =  req.query.email;
+      const amount =  Number(req.query.amount)
+      const contract_id =  req.query._id
+      const choice =  req.query.choice;
 
-      const  email =  req.query.email;
-      const  amount =  req.query.amount
-      const contract_id   =  req.query._id
-      const choice  =  String(req.query.choice)
-     //find the contract and update  the  contract  by  addinf the player info into the players field
-     const  position  ={
-            email:email,
-            amount:amount,
-            contract_id:contract_id,
-            choice:choice
-     }
+      const position = {
+             email:email,
+             amount:amount,
+             contract_id:contract_id,
+             choice:choice
+      }
 
-      User.find({email:email},(err,user)=>{if(err){res.send({message:err})}position.user_id=user[0]._id})
-
-      const UserPromise  =  User.update({email:email},{$push:{'positions':position},$inc:{'funds':-amount} },{multi:true})
-
-      const ContractPromise =  Contract.update({_id:contract_id,'terms.name':choice},{
-                  $push:{'players':position},
-                  $inc:{'money_pool':amount},
-                  $inc:{'terms.$.count':1}
-      },{multi:true});
-
-      var resolver   = Promise.all([UserPromise,ContractPromise]);
-
-       resolver.then((err)=>{if(err){res.send(err)}res.send("Joined")})
+      User.updateOne({email:email},{
+             $push:{'positions':position},
+             $inc:{"funds":-amount}},{multi:true}).then(a=>{
+                   Contract.updateOne({$and:[{_id:contract_id},{'terms.name':choice}]},{
+                         $push:{'players':position},
+                         $inc:{"money_pool":amount},
+                         $inc:{"terms.$.count":1}
+                   },{multi:true}).then(a=>{
+                         Contract.updateOne({_id:contract_id},{$inc:{"money_pool":amount}}).then(a=>{
+                               res.send(a)
+                         }).catch(err=>{res.send(err)})
+                   });
+             })
+      
+});
 
 
 
+router.put('/close_contract',verifyToken,(req,res)=>{
+      const  result  =  String(req.query.result)
+      const _id  =  req.query._id
+      const players  =  [];
+
+      Contract.find({$and :[{"_id":_id},{"players.choice":result}]},function(err,c){
+             if(err){res.send(err)}
+             res.send(c);
+      });
 
 
 });
-
 
 //function to Verify Token
 function  verifyToken(req,res,next){
@@ -133,7 +142,6 @@ function  verifyToken(req,res,next){
       }else{
              res.sendStatus(403,{message:"Error"})
       }
-
 };
 
 //function to verify the user exist using password and email
@@ -153,9 +161,24 @@ function verifyUser(req,res,next){
             }
             next();
       });
-      
-
 }
+//function to check if the  User Making the Contract has Enough funds
+
+function checkFunds(req,res,next){
+     const email =  req.query.email;
+     const amount =  Number(req.query.amount);
+     User.find({email:email},function(err,user){
+            console.log(user[0])
+            const user_funds   = Number(user[0].funds);
+            if(user_funds>= amount){
+                   next();
+            }else{
+                  console.log("Not Enough Funds")
+                  res.send(404,{"message":"The user does not have  enough funds in the account"})
+            }
+     });
+}
+
 
 
 

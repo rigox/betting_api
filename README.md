@@ -1,5 +1,6 @@
 # betting_api
 Simple  RESTFUL API that allows users to interact with a betting contract
+-- There is no real  money involve in this API is just fake number think of it like a simulation
 -- Uses express to interect s With a mongo DB database
 -- Will be use to make a web application
 -- Simple route Athutentication using JSON webtoken

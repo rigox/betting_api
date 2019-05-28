@@ -42,5 +42,11 @@ router.delete('/delete_user',(req,res)=>{
 });
 
 
+router.put('/add_funds',(req,res)=>{
+       var temp  = Number(req.query.amount);
+       User.update({email:req.query.email},{$inc:{'funds':temp}},function(err,docs){if(err){res.send(err)}res.send(200,{"message":"Funds Added"})})
+});
+
+
 
 module.exports  =  router;
