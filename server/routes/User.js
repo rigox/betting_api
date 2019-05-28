@@ -16,6 +16,7 @@ router.post('/make_user',(req,res)=>{
     const  funds = req.query.funds;
     const  email = req.query.email;
     const password =  req.query.password;
+
     const user =  new User({
             name:name,
             funds:funds,
@@ -30,13 +31,16 @@ router.post('/make_user',(req,res)=>{
 
 
 router.delete('/delete_user',(req,res)=>{
-     const _id =  String(req.query._id);
-     User.deleteOne({'_id':_id},(err)=>{if(err){res.sendStatus(403)}
+
+      const email  = req.query.email;
+
+      User.deleteOne({email:email},(err)=>{if(err){res.sendStatus(403)}
       else{
            res.send(200,{message:'Account deleted'})
       }
     })
 });
+
 
 
 module.exports  =  router;

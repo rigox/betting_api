@@ -83,6 +83,43 @@ router.delete('/delete_contract',verifyToken,(req,res)=>{
         res.send("contract deleted")
 });
 
+
+
+router.post('/join_contract',(req,res)=>{
+
+      const  email =  req.query.email;
+      const  amount =  req.query.amount
+      const contract_id   =  req.query._id
+      const choice  =  String(req.query.choice)
+     //find the contract and update  the  contract  by  addinf the player info into the players field
+     const  position  ={
+            email:email,
+            amount:amount,
+            contract_id:contract_id,
+            choice:choice
+     }
+
+      User.find({email:email},(err,user)=>{if(err){res.send({message:err})}position.user_id=user[0]._id})
+
+      const UserPromise  =  User.update({email:email},{$push:{'positions':position},$inc:{'funds':-amount} },{multi:true})
+
+      const ContractPromise =  Contract.update({_id:contract_id,'terms.name':choice},{
+                  $push:{'players':position},
+                  $inc:{'money_pool':amount},
+                  $inc:{'terms.$.count':1}
+      },{multi:true});
+
+      var resolver   = Promise.all([UserPromise,ContractPromise]);
+
+       resolver.then((err)=>{if(err){res.send(err)}res.send("Joined")})
+
+
+
+
+
+});
+
+
 //function to Verify Token
 function  verifyToken(req,res,next){
       const bearerHeader= req.headers["authorization"];
