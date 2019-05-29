@@ -10,7 +10,6 @@ router.get('/',(req,res)=>{
       res.send("hello")
 });
 
-
 router.post('/login',verifyUser,(req,res)=>{
 
       const email =  req.query.email;
@@ -26,10 +25,6 @@ router.post('/login',verifyUser,(req,res)=>{
 
 
 });
-
-
-
-
 
 router.post('/create',verifyToken,(req,res)=>{
      const name = req.query.name;
@@ -84,7 +79,6 @@ router.delete('/delete_contract',verifyToken,(req,res)=>{
 });
 
 
-
 router.post('/join_contract',checkFunds,(req,res)=>{
       const email  =  req.query.email;
       const amount =  Number(req.query.amount)
@@ -115,7 +109,6 @@ router.post('/join_contract',checkFunds,(req,res)=>{
 });
 
 
-
 router.put('/close_contract',verifyToken,(req,res)=>{
       const  result  =  String(req.query.result)
       const _id  =  req.query._id
@@ -128,23 +121,18 @@ router.put('/close_contract',verifyToken,(req,res)=>{
          var emails   = players.map(a=>{return a.email})
          money_pool =  contract[0].money_pool;
          share  =   Number(money_pool/players.length)
-         console.log("@@@@@@@",share)
 
          var n_players =  players.length
-         User.update({email:{$in:emails}},{$inc:{"funds":share}}).then(r=>{
-            Contract.update({_id:_id},{$inc:{"money_pool":- share * n_players}}).then(a=>{res.send(a)})
+         User.update({email:{$in:emails}},{$inc:{"funds":share}},{multi:true}).then(r=>{
+            Contract.update({_id:_id},{$inc:{"money_pool":- share * n_players}}).then(a=>{
+                  Contract.update({_id:_id},{$set:{"status":"close"}}).then(a=>{res.send(a)})
+            });
          });
-
-
-         
-
-            
-
-
       })
-
 });
 
+
+/// helper functions 
 //function to Verify Token
 function  verifyToken(req,res,next){
       const bearerHeader= req.headers["authorization"];
@@ -154,7 +142,15 @@ function  verifyToken(req,res,next){
              const bearerToken  = bearer[1];
 
              req.token  =  bearerToken
-             next();
+             
+            jwt.verify(req.token,keys.secret_key,function(req,res){
+                  if(err){
+                         res.send(403)
+                  }else{
+                         next();
+                  }
+            });
+
       }else{
              res.sendStatus(403,{message:"Error"})
       }
