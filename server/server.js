@@ -5,10 +5,11 @@ const Router =   require("./routes/Contract")
 const UserRoutes =  require("./routes/User");
 const moongose =  require("./models/mongoose");
 const jwt  = require("jsonwebtoken")
+const cors =  require("cors")
 
 const app =  express();
 app.use(bodyParser.urlencoded(),bodyParser.json());
-
+app.use(cors())
 app.get('/',(req,res)=>{
      res.send("Welcome")
 });

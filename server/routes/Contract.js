@@ -143,7 +143,7 @@ function  verifyToken(req,res,next){
 
              req.token  =  bearerToken
              
-            jwt.verify(req.token,keys.secret_key,function(req,res){
+            jwt.verify(req.token,keys.secret_key,function(err,data){
                   if(err){
                          res.send(403)
                   }else{

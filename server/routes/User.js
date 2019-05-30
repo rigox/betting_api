@@ -1,7 +1,7 @@
 const express  =  require("express")
 const router =  express.Router();
 const User =  require("../models/User");
-
+const  bcrypt  = require("bcryptjs");
 
 
 
@@ -12,11 +12,11 @@ router.get('/fetch_users',(req,res)=>{
 });
 
 router.post('/make_user',(req,res)=>{
-    const name =  req.query.name;
-    const  funds = req.query.funds;
-    const  email = req.query.email;
-    const password =  req.query.password;
-
+      const name =  req.body.name;
+      const  funds = req.body.funds;
+      const  email = req.body.email;
+      const password =  req.body.password;
+    console.log(req.body)
     const user =  new User({
             name:name,
             funds:funds,
@@ -25,7 +25,19 @@ router.post('/make_user',(req,res)=>{
             dateJoined:new Date().toUTCString()
     });
 
-    user.save((err)=>{if(err){res.send(err)}res.sendStatus(200,{message:"Account Created"})});
+    bcrypt.genSalt(10,(err,salt)=>{
+          bcrypt.hash(user.password,salt,(err,hash)=>{
+                if(err){throw err}
+                user.password  =  hash;
+
+                //save the user
+                user.save((err)=>{if(err){res.send(err)}res.sendStatus(200,{message:"Account Created"})});
+
+
+
+          })
+    })
+
        
 });
 
@@ -40,7 +52,6 @@ router.delete('/delete_user',(req,res)=>{
       }
     })
 });
-
 
 router.put('/add_funds',(req,res)=>{
        var temp  = Number(req.query.amount);
