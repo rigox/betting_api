@@ -29,6 +29,7 @@ router.post('/make_user',(req,res)=>{
                         funds:funds,
                         email:email,
                         password:password,
+                        isAdmin:false,
                         dateJoined:new Date().toUTCString()
                 });
             

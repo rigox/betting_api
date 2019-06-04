@@ -4,24 +4,27 @@ const Contract =  require("../models/Contract");
 const  User  =  require('../models/User')
 const jwt   =  require("jsonwebtoken");
 const keys =  require("../config/keys");
-
+const bcrypt  =  require("bcryptjs");
 router.get('/',(req,res)=>{
       console.log("inside route")
       res.send("hello")
 });
 
-router.post('/login',verifyUser,(req,res)=>{
-
-      const email =  req.query.email;
-      User.find({'email':email},(err,user)=>{
-            
-           jwt.sign({user:user},keys.secret_key,{expiresIn:'5h'},(err,token)=>{
-                  res.json({
-                        token:token
-                  });
-           }); 
-
-      });
+router.post('/login',(req,res)=>{
+      const email = req.body.email
+      console.log(req.body)
+      const password = req.body.password 
+      console.log(password)
+      User.find({'email':email,'isAdmin':true}).then(user=>{
+            bcrypt.compare(password,user[0].password,(err,isMatch)=>{
+                  if(err){res.send("Wrong Password")}
+                  jwt.sign({user:user},keys.secret_key,{expiresIn:'5h'},(err,token)=>{
+                       res.json({
+                             token:token
+                       });
+                }); 
+           })
+      }).catch(err=>res.send(404,{'message':'must be admin to continue'}))
 
 
 });

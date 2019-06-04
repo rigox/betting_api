@@ -7,6 +7,7 @@ const userSchema =  mongoose.Schema({
       funds : Number,
       contracts:[],
       positions:[],
+      isAdmin:Boolean,
       dateJoined :String  
 });
 
