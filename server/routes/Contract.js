@@ -29,13 +29,13 @@ router.post('/login',(req,res)=>{
 
 });
 
-router.post('/create',verifyToken,(req,res)=>{
-     const name = req.query.name;
-     const terms= req.query.terms
+router.post('/create',(req,res)=>{
+     const name = req.query.name || req.body.name;
+     const terms= req.query.terms || req.body.terms;
      const moneyPool= 10
      const  description =  req.query.description
      const dateCreated =  new Date().toUTCString()
-
+     console.log(terms)
       var list =  terms.map(function(record){
                return(
                      {
