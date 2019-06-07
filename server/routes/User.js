@@ -47,6 +47,17 @@ router.post('/make_user',(req,res)=>{
        
 });
 
+//User Update Email Route
+
+router.put("/update_email",verifyToken,(req,res)=>{
+        console.log("UPDATE EMNAIL")
+         var  email = req.query.email || req.body.email
+         var newEmail  = req.query.newEmail || req.body.newEmail
+         console.log(newEmail,"New  Email")
+         User.updateOne({"email":email},{'email':newEmail}).then(a=>res.send(a))
+         .catch(err=>{res.send(404,{"Message": "accour while updating"})})
+})
+
 //Route to find a  User
 
 router.get("/get_user",(req,res)=>{

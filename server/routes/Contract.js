@@ -63,8 +63,7 @@ contract.save((err)=>{
 });
 
 
-router.get('/fetch_contracts',verifyToken,(req,res)=>{
-        
+router.get('/fetch_contracts',verifyToken,(req,res)=>{     
             Contract.find({},(err,records)=>{
                      if(err){throw err}
                      res.send(JSON.stringify(records));
@@ -83,17 +82,18 @@ router.delete('/delete_contract',verifyToken,(req,res)=>{
 
 
 router.post('/join_contract',checkFunds,(req,res)=>{
-      const email  =  req.query.email;
-      const amount =  Number(req.query.amount)
-      const contract_id =  req.query._id
-      const choice =  req.query.choice;
-
+      const email  =  req.query.email || req.body.email;
+      const amount =  Number(req.query.amount|| req.body.amount)
+      const contract_id =  req.query._id || req.body._id
+      const choice =  req.query.choice || req.body.choice
+      
       const position = {
              email:email,
              amount:amount,
              contract_id:contract_id,
              choice:choice
       }
+
 
       User.updateOne({email:email},{
              $push:{'positions':position},
@@ -108,7 +108,6 @@ router.post('/join_contract',checkFunds,(req,res)=>{
                          }).catch(err=>{res.send(err)})
                    });
              })
-      
 });
 
 
@@ -133,7 +132,6 @@ router.put('/close_contract',verifyToken,(req,res)=>{
          });
       })
 });
-
 
 /// helper functions 
 //function to Verify Token
@@ -180,10 +178,9 @@ function verifyUser(req,res,next){
 //function to check if the  User Making the Contract has Enough funds
 
 function checkFunds(req,res,next){
-     const email =  req.query.email;
-     const amount =  Number(req.query.amount);
+     const email =  req.query.email ||  req.body.email
+     const amount =  Number(req.query.amount || req.body.amount);
      User.find({email:email},function(err,user){
-            console.log(user[0])
             const user_funds   = Number(user[0].funds);
             if(user_funds>= amount){
                    next();
