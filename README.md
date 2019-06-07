@@ -29,4 +29,3 @@ User/add_funds --  use to add FAKE money to user account
 User/login -- use to log in same as the one in the Contract Routes
 ```
 
-ss
