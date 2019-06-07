@@ -29,7 +29,7 @@ router.post('/login',(req,res)=>{
 
 });
 
-router.post('/create',(req,res)=>{
+router.post('/create',verifyToken,(req,res)=>{
      const name = req.query.name || req.body.name;
      const terms= req.query.terms || req.body.terms;
      const moneyPool= 10
@@ -63,7 +63,7 @@ contract.save((err)=>{
 });
 
 
-router.get('/fetch_contracts',(req,res)=>{
+router.get('/fetch_contracts',verifyToken,(req,res)=>{
         
             Contract.find({},(err,records)=>{
                      if(err){throw err}

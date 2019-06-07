@@ -47,7 +47,16 @@ router.post('/make_user',(req,res)=>{
        
 });
 
+//Route to find a  User
 
+router.get("/get_user",(req,res)=>{
+            const email =  req.body.email || req.query.email
+            User.findOne({"email":email})
+            .then(user=>{
+                   res.send(JSON.stringify(user))
+            })
+            .catch(err=>res.send(404,{"message":"User does not exist"}))
+});
 
 router.delete('/delete_user',(req,res)=>{
 
@@ -64,9 +73,11 @@ router.delete('/delete_user',(req,res)=>{
 
 
 
-router.put('/add_funds',(req,res)=>{
-       var temp  = Number(req.query.amount);
-       User.update({email:req.query.email},{$inc:{'funds':temp}},function(err,docs){if(err){res.send(err)}res.send(200,{"message":"Funds Added"})})
+router.put('/add_funds',verifyToken,(req,res)=>{
+       var temp  = Number(req.query.amount|| req.body.amount);
+       var email  =  req.query.email || req.body.email
+       console.log("add_funds",temp)
+       User.update({'email':email},{$inc:{'funds':temp}},function(err,docs){if(err){res.send(err)}res.send(200,{"message":"Funds Added"})})
 });
 //ss
 
@@ -102,6 +113,30 @@ router.post('/login',(req,res)=>{
 
 });
 
+
+//very token
+
+function  verifyToken(req,res,next){
+      const bearerHeader= req.headers["authorization"];
+      
+      if(typeof(bearerHeader)!=="undefined"){
+             const bearer  =  bearerHeader.split(' ');
+             const bearerToken  = bearer[1];
+
+             req.token  =  bearerToken
+             
+            jwt.verify(req.token,keys.secret_key,function(err,data){
+                  if(err){
+                         res.send(403)
+                  }else{
+                         next();
+                  }
+            });
+
+      }else{
+             res.sendStatus(403,{message:"Error"})
+      }
+};
 
 
 
