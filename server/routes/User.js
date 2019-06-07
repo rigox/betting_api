@@ -18,7 +18,6 @@ router.post('/make_user',(req,res)=>{
       const  funds = req.body.funds;
       const  email = req.body.email;
       const password =  req.body.password;
-
       User.findOne({email:email})
       .then(user=>{
             if(user){
@@ -31,8 +30,7 @@ router.post('/make_user',(req,res)=>{
                         password:password,
                         isAdmin:false,
                         dateJoined:new Date().toUTCString()
-                });
-            
+                });    
                 bcrypt.genSalt(10,(err,salt)=>{
                       bcrypt.hash(newUser.password,salt,(err,hash)=>{
                             if(err){throw err}
@@ -42,15 +40,13 @@ router.post('/make_user',(req,res)=>{
                       })
                 })  
             }
-      })
-
-       
+      })      
 });
 
 //User Update Email Route
 
 router.put("/update_email",verifyToken,(req,res)=>{
-        console.log("UPDATE EMNAIL")
+         console.log("UPDATE EMNAIL")
          var  email = req.query.email || req.body.email
          var newEmail  = req.query.newEmail || req.body.newEmail
          console.log(newEmail,"New  Email")
@@ -70,9 +66,7 @@ router.get("/get_user",(req,res)=>{
 });
 
 router.delete('/delete_user',(req,res)=>{
-
       const email  = req.query.email;
-
       User.deleteOne({email:email},(err)=>{if(err){res.sendStatus(403)}
       else{
            res.send(200,{message:'Account deleted'})
@@ -81,20 +75,14 @@ router.delete('/delete_user',(req,res)=>{
 });
 
 
-
-
-
 router.put('/add_funds',verifyToken,(req,res)=>{
        var temp  = Number(req.query.amount|| req.body.amount);
        var email  =  req.query.email || req.body.email
        console.log("add_funds",temp)
        User.update({'email':email},{$inc:{'funds':temp}},function(err,docs){if(err){res.send(err)}res.send(200,{"message":"Funds Added"})})
 });
-//ss
 
-
-
-//function to log in
+//Route to log in
 
 router.post('/login',(req,res)=>{
 

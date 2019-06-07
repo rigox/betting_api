@@ -112,18 +112,16 @@ router.post('/join_contract',checkFunds,(req,res)=>{
 
 
 router.put('/close_contract',verifyToken,(req,res)=>{
-      const  result  =  String(req.query.result)
-      const _id  =  req.query._id
+      const  result  =  String(req.query.result ||req.body.result)
+      const _id  =  req.query._id || req.body._id
       var money_pool  = 0;
       Contract.find({_id:_id}).then(contract=>{
             var players =   contract[0].players.filter(c=>{
                   return c.choice == result;
-            });
-       
+            });      
          var emails   = players.map(a=>{return a.email})
          money_pool =  contract[0].money_pool;
          share  =   Number(money_pool/players.length)
-
          var n_players =  players.length
          User.update({email:{$in:emails}},{$inc:{"funds":share}},{multi:true}).then(r=>{
             Contract.update({_id:_id},{$inc:{"money_pool":- share * n_players}}).then(a=>{
@@ -190,10 +188,5 @@ function checkFunds(req,res,next){
             }
      });
 }
-
-
-
-
-
 
 module.exports = router;
